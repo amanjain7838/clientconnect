@@ -39,28 +39,16 @@
   </ion-card-header>
 </ion-card> -->
 
-<ion-list >
-	<ion-item class="item-label item ios in-list ion-focusable hydrated" button (click)="joinchat()">
+<ion-list  *ngFor="let userdetail of userlist[0]">
+	<ion-item class="item-label item ios in-list ion-focusable hydrated" button (click)="joinchat(userdetail.user.id,userdetail.user.name)">
 	  <ion-avatar slot="start" class="ios hydrated">
 	    <img src="https://www.gravatar.com/avatar/0?d=monsterid&amp;f=y">
 	  </ion-avatar>
 	  <ion-label class="sc-ion-label-ios-h sc-ion-label-ios-s ios hydrated">
-	    <h2>A1</h2>
+	    <h2>{{userdetail.user.name}}</h2>
 	  </ion-label>
 	  <ion-note  class="hydrated">
-	    <p>Created November 28, 2012</p>
-	  </ion-note>
-	</ion-item>
-
-	<ion-item class="item-label" button (click)="joinchat('A1')">
-	  <ion-avatar slot="start" class="ios hydrated">
-	    <img src="https://www.gravatar.com/avatar/0?d=monsterid&amp;f=y">
-	  </ion-avatar>
-	  <ion-label class="sc-ion-label-ios-h sc-ion-label-ios-s ios hydrated">
-	    <h2>A1</h2>
-	  </ion-label>
-	  <ion-note  class="hydrated">
-	    <p>Created November 28, 2012</p>
+	    <p>{{userdetail.updatedAt}}</p>
 	  </ion-note>
 	</ion-item>
 
