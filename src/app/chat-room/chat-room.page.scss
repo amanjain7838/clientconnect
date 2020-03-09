@@ -1,5 +1,4 @@
-page-chat-room {
-    .user_name {
+.user_name {
         color: #afafaf;
     }
     .message {
@@ -9,10 +8,11 @@ page-chat-room {
         margin-bottom: 4px !important;
     }
     .my_message {
+        background: #d8efd0 !important;
         color: #000 !important;
     }
     .other_message {
-        background: #dcdcdc !important;
+        background: #ffffff !important;
         color: #000 !important;
     }
     .time {
@@ -20,7 +20,29 @@ page-chat-room {
         float: right;
         font-size: small;
     }
+    .date
+    {
+        color: #afafaf;
+        font-size: small;
+    }
     .message_row {
         background-color: #fff;
     }
-}
+    .message-arrow:before {
+        content: "\00a0";
+        display: block;
+        height: 16px;
+        width: 9px;
+        position: absolute;
+        top: -5px;
+    }
+    .other_message:before {
+        background-color: #ffffff !important;
+        left: 7px;
+        -webkit-transform: rotate(-70deg) skew(-5deg);
+    }
+    .my_message:before {
+        background-color: #d8efd0!important;
+        right: 7px;
+        -webkit-transform: rotate(-118deg) skew(5deg);
+    }

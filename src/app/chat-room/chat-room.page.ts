@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,ViewChild,ElementRef } from '@angular/core';
 import { NavController, NavParams, AlertController } from '@ionic/angular';
 import { Socket } from 'ngx-socket-io';
 import { Observable } from 'rxjs/Observable';
 import { Router,ActivatedRoute } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { ToastController,IonContent,IonList,IonGrid } from '@ionic/angular';
+import { UserService } from '../services/user/user.service';
 
 // @IonicPage()
 @Component({
@@ -12,44 +13,40 @@ import { ToastController } from '@ionic/angular';
   styleUrls: ['./chat-room.page.scss'],
 })
 export class ChatRoomPage implements OnInit {
-	messages = [];
+	messages;
 	nickname = 'aman';
 	message = '';
   currentUser;
   friendid: any;
   username: any;
   roomid;
-	constructor(private navCtrl: NavController, private socket: Socket, private alertCtrl: AlertController, private toastCtrl: ToastController,private router: Router,private route: ActivatedRoute) {
-    // this.nickname = this.navParams.get('nickname');
- 
-    // this.getMessages().subscribe(message => {
-    //   this.messages.push(message);
-    // });
+  today=new Date();
+  @ViewChild(IonContent,{static: false}) chatpanel: any;
+  @ViewChild(IonGrid, {read: ElementRef,static:false}) chatList: ElementRef;
+  private mutationObserver: MutationObserver;
 
-    // this.route.queryParams.subscribe(params => {
-    //   if (this.router.getCurrentNavigation().extras.state) {
-    //     this.dataparam = this.router.getCurrentNavigation().extras.state.userid;
-    //   console.log(this.dataparam)
-    //   }
-    // });
+	constructor(private navCtrl: NavController, private socket: Socket, private alertCtrl: AlertController, private toastCtrl: ToastController,private router: Router,private route: ActivatedRoute,private userservice:UserService) {
+
     this.friendid = this.route.snapshot.paramMap.get('friendid');
     this.username = this.route.snapshot.paramMap.get('friendname');
-    
-    // console.log(this.userid)
-    this.socket.connect();
-    this.currentUser=this.route.snapshot.paramMap.get('userid');
+    this.userservice.userid().subscribe(response=>{
+      this.currentUser=response['id'];
+      this.socket.connect();
+      console.log(this.currentUser)
+      this.socket.emit('setroom',{"friendid":this.friendid,"userid":this.currentUser});
+      this.socket.fromEvent('listenroomid').subscribe(result => {
+        this.roomid=result['content'];
+      });    
+      this.socket.fromEvent('message').subscribe(message => {
+        this.messages.push(message);
+        console.log(this.messages)
+      });
 
-    this.socket.emit('setroom',{"friendid":this.friendid,"userid":this.currentUser});
+    });
+
     
     // this.socket.emit('clientdetails',{"receiverUser":this.userid,"currentUser":this.currentUser});
 
-    this.socket.fromEvent('listenroomid').subscribe(result => {
-      this.roomid=result['content'];
-    });    
-    this.socket.fromEvent('message').subscribe(message => {
-      console.log(message)
-      this.messages.push(message);
-    });
  
     // this.getUsers().subscribe(data => {
     //   let user = data['user'];
@@ -60,14 +57,6 @@ export class ChatRoomPage implements OnInit {
     //   }
     // });
 
-    this.socket.fromEvent('users-changed').subscribe(data => {
-      let user = data['user'];
-      if (data['event'] === 'left') {
-        this.showToast('User left: ' + user);
-      } else {
-        this.showToast('User joined: ' + user);
-      }
-    });
   
   }
  
@@ -78,7 +67,16 @@ export class ChatRoomPage implements OnInit {
     this.socket.emit('send-message',data);
     this.message = '';
   }
- 
+  ionViewDidEnter(){
+    this.mutationObserver = new MutationObserver((mutations) => {
+        this.chatpanel.scrollToBottom();
+    });
+
+    this.mutationObserver.observe(this.chatList.nativeElement, {
+        childList: true
+    });
+    this.chatpanel.scrollToBottom();
+  }
  
   ionViewWillLeave() {
     this.socket.disconnect();
@@ -89,10 +87,10 @@ export class ChatRoomPage implements OnInit {
     //   message: msg,
     //   duration: 2000
     // });
-	const alert = await this.alertCtrl.create({
-		message: msg,
-		buttons: ['Dismiss']
-	});
+  	const alert = await this.alertCtrl.create({
+  		message: msg,
+  		buttons: ['Dismiss']
+  	});
     await alert.present();
     let toast = await this.toastCtrl.create({
       message: msg,
@@ -102,6 +100,11 @@ export class ChatRoomPage implements OnInit {
     toast.present();
   }
 	ngOnInit() {
+      this.socket.fromEvent('chathistory').subscribe(message => {
+        console.log(message)
+        this.messages=message;
+      });
+
 	}
 
 }
