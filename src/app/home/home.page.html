@@ -8,8 +8,8 @@
  
 <ion-content>
 
-<ion-list  *ngFor="let userdetail of userlist[0]">
-	<ion-item  button (click)="joinchat(userdetail.user.id,userdetail.user.name)" >
+<ion-list  *ngFor="let userdetail of userlist[0]" >
+	<ion-item  button (click)="joinchat(userdetail.user.id,userdetail.user.name)" detail='false'>
 	  <ion-avatar slot="start" >
 	    <img src="https://www.gravatar.com/avatar/0?d=monsterid&amp;f=y">
 	  </ion-avatar>
