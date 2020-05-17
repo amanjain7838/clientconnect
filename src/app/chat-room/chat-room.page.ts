@@ -28,15 +28,16 @@ export class ChatRoomPage implements OnInit {
 	constructor(private navCtrl: NavController, private socket: Socket, private alertCtrl: AlertController, private toastCtrl: ToastController,private router: Router,private route: ActivatedRoute,private userservice:UserService) {
 
     this.friendid = this.route.snapshot.paramMap.get('friendid');
-    this.username = this.route.snapshot.paramMap.get('friendname');
     this.userservice.userid().subscribe(response=>{
       this.currentUser=response['id'];
       this.socket.connect();
-      console.log(this.currentUser)
-      this.socket.emit('setroom',{"friendid":this.friendid,"userid":this.currentUser});
-      this.socket.fromEvent('listenroomid').subscribe(result => {
-        this.roomid=result['content'];
-      });    
+      this.socket.emit('setroom',{"roomowner":this.currentUser});
+      let data={userid:this.currentUser,friendid:this.friendid};
+      this.socket.emit('get-chathistory',data);
+      this.socket.fromEvent('chathistory').subscribe(message => {
+        console.log(message)
+        this.messages=message;
+      });
       this.socket.fromEvent('message').subscribe(message => {
         this.messages.push(message);
         console.log(this.messages)
@@ -63,8 +64,10 @@ export class ChatRoomPage implements OnInit {
   sendMessage() {
     // this.socket.emit('add-message', { text: this.message });
     // this.message = '';
-    let data={ text: this.message,sender:this.currentUser,receiver:this.friendid,roomid:this.roomid};
+    let data={ text: this.message,sender:this.currentUser,receiver:this.friendid};
     this.socket.emit('send-message',data);
+    let subdata={message: this.message,senderId:this.currentUser,receiverId:this.friendid, createdAt: new Date()};
+    this.messages.push(subdata);
     this.message = '';
   }
   ionViewDidEnter(){
@@ -100,10 +103,9 @@ export class ChatRoomPage implements OnInit {
     toast.present();
   }
 	ngOnInit() {
-      this.socket.fromEvent('chathistory').subscribe(message => {
-        console.log(message)
-        this.messages=message;
-      });
+
+
+
 
 	}
 
