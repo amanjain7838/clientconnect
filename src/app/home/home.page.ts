@@ -63,14 +63,18 @@ export class HomePage implements OnInit {
   ionViewWillLeave() {
     // this.socket.disconnect();
   }
- joinchat(userid,username){
+ joinchat(data){
   //  let navigationExtras: NavigationExtras = {
   //   state: {
   //     friendId:userid
   //   }
   // };
-
-    this.router.navigate(['/chat-room',{friendid:userid,friendname:username,userid:this.currentUser}]);
+  let userdetails;
+  if(data.muserid.id!=this.currentUser)
+    userdetails=data.muserid;
+  else
+    userdetails=data.sfriendid;
+    this.router.navigate(['/chat-room',{friendid:userdetails.id,friendname:userdetails.name,userid:this.currentUser}]);
     // this.router.navigate(['chat-room'],navigationExtras);
  }
   async showToast(msg) {

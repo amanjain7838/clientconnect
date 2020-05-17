@@ -9,12 +9,13 @@
 <ion-content>
 
 <ion-list  *ngFor="let userdetail of userlist[0]" >
-	<ion-item  button (click)="joinchat(userdetail.user.id,userdetail.user.name)" detail='false'>
+	<ion-item  button (click)="joinchat(userdetail)" detail='false'>
 	  <ion-avatar slot="start" >
 	    <img src="https://www.gravatar.com/avatar/0?d=monsterid&amp;f=y">
 	  </ion-avatar>
 	  <ion-label>
-	    <h2>{{userdetail.user.name}}</h2>
+	    <h2 *ngIf="currentUser!=userdetail.muserid.id; else h2elseblock;">{{userdetail.muserid.name}}</h2>
+	    <ng-template #h2elseblock>{{userdetail.sfriendid.name}}</ng-template>
   	  <ion-note>
   	    <p><ion-icon name="chatboxes" style="vertical-align: middle;"></ion-icon> Tap to Chat</p>
   	  </ion-note>

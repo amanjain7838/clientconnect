@@ -60,7 +60,6 @@ constructor(private  httpClient:  HttpClient, private  storage:  Storage, privat
     await this.storage.remove("userId");
     this.authSubject.next(false);
     this.router.navigateByUrl('login');
-
   }
   
   isLoggedIn() {
