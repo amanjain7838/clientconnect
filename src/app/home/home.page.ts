@@ -3,6 +3,7 @@ import { NavController } from '@ionic/angular';
 import { Router,NavigationExtras } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { UserService } from '../services/user/user.service';
+import { Socket } from 'ngx-socket-io';
 
 @Component({
   selector: 'app-home',
@@ -15,11 +16,10 @@ export class HomePage implements OnInit {
 	currentUser;
   nickname = '';
   userlist=[];
-
-  constructor( private toastCtrl: ToastController,public router: Router,private userservice:UserService) { }
+  newmessage=[];
+  constructor( private toastCtrl: ToastController,public router: Router,private userservice:UserService, private socket: Socket) { }
  
   ngOnInit() {
-    this.getuserlist();
 
     // this.socket.connect();
  
@@ -29,7 +29,12 @@ export class HomePage implements OnInit {
     this.getcurrentuser();    
 
     // this.socket.emit('set-name', name);
- 
+
+     this.socket.fromEvent('notifyusermessage').subscribe(message => {
+        const index: number = this.newmessage.indexOf(message['senderId']);
+        if (index=== -1)
+          this.newmessage.push(message['senderId']);
+      });
     // this.socket.fromEvent('users-changed').subscribe(data => {
     //   let user = data['user'];
     //   if (data['event'] === 'left') {
@@ -47,12 +52,17 @@ export class HomePage implements OnInit {
     this.userservice.userid().subscribe(response=>{
       this.currentUser=response['id'];
       console.log(this.currentUser)
+      this.socket.connect();
+      this.socket.emit('setroom',{"roomowner":this.currentUser});
+      
+      this.getuserlist();
     });
   }
   getuserlist(){
     this.userservice.userdata().subscribe(response=>{
       if(response.data.length>0)
         this.userlist.push(response.data);
+      console.log(response.data)
     });
   }
   sendMessage() {
@@ -74,6 +84,11 @@ export class HomePage implements OnInit {
     userdetails=data.muserid;
   else
     userdetails=data.sfriendid;
+    let senderid=this.currentUser!=data.muserid.id?data.muserid.id:data.sfriendid.id;
+    const index: number = this.newmessage.indexOf(senderid);
+    if (index !== -1) {
+        this.newmessage.splice(index, 1);
+    }
     this.router.navigate(['/chat-room',{friendid:userdetails.id,friendname:userdetails.name,userid:this.currentUser}]);
     // this.router.navigate(['chat-room'],navigationExtras);
  }

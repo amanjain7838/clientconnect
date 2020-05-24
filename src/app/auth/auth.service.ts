@@ -46,9 +46,9 @@ constructor(private  httpClient:  HttpClient, private  storage:  Storage, privat
       tap(async (res: AuthResponse) => {
 
         if (res['access_token']) {
+          await this.storage.set("userId", res['user']['id']);
           await this.storage.set("ACCESS_TOKEN", res['access_token']);
           await this.storage.set("EXPIRES_IN", res['expires_in']);
-          await this.storage.set("userId", res['user']['id']);
           this.authSubject.next(true);
         }
       })

@@ -82,7 +82,7 @@ export class ChatRoomPage implements OnInit {
   }
  
   ionViewWillLeave() {
-    this.socket.disconnect();
+    // this.socket.disconnect();
   }
  
   async showToast(msg) {
