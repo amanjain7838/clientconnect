@@ -31,3 +31,5 @@ npm-debug.log*
 /www
 package-lock.json
 node_modules
+android
+e2e
